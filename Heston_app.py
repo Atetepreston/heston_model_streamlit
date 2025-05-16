@@ -5,7 +5,7 @@ import scipy.integrate as spi
 class Heston_Model:
     def __init__(self, K, t, S0, r, v0, theta, kappa, sigma, rho):
         self.K = K
-        self.t = t
+        self.t = t  # Time in years
         self.S0 = S0
         self.r = r
         self.v0 = v0
@@ -26,17 +26,17 @@ class Heston_Model:
         x = np.log(self.S0)
         d = np.sqrt(
             (self.rho * self.sigma * phi * 1j - b) ** 2
-            - self.sigma**2 * (2 * u * phi * 1j - phi**2)
+            - self.sigma ** 2 * (2 * u * phi * 1j - phi ** 2)
         )
         g = (b - self.rho * self.sigma * phi * 1j + d) / (
             b - self.rho * self.sigma * phi * 1j - d
         )
-        D = self.r * phi * 1j * self.t + (a / self.sigma**2) * (
+        D = self.r * phi * 1j * self.t + (a / self.sigma ** 2) * (
             (b - self.rho * self.sigma * phi * 1j + d) * self.t
             - 2 * np.log((1 - g * np.exp(d * self.t)) / (1 - g))
         )
         E = (
-            ((b - self.rho * self.sigma * phi * 1j + d) / self.sigma**2)
+            ((b - self.rho * self.sigma * phi * 1j + d) / self.sigma ** 2)
             * (1 - np.exp(d * self.t))
             / (1 - g * np.exp(d * self.t))
         )
@@ -67,10 +67,10 @@ class Heston_Model:
 # Streamlit UI
 st.title("Heston Model Option Pricing App")
 
-st.markdown("Enter the parameters below:")
-
+st.markdown("### Enter the parameters below:")
 K = st.number_input("Strike Price (K)", value=100.0)
-t = st.number_input("Time to Maturity in Years (t)", value=1.0)
+t_weeks = st.number_input("Time to Maturity (in Weeks)", value=4)
+t = t_weeks / 52  # Convert weeks to years
 S0 = st.number_input("Initial Stock Price (S0)", value=100.0)
 r = st.number_input("Risk-Free Rate (r)", value=0.05)
 v0 = st.number_input("Initial Variance (v0)", value=0.04)
@@ -78,6 +78,8 @@ theta = st.number_input("Long-Term Variance (theta)", value=0.04)
 kappa = st.number_input("Mean Reversion Speed (kappa)", value=1.5)
 sigma = st.number_input("Volatility of Variance (sigma)", value=0.3)
 rho = st.number_input("Correlation (rho)", value=-0.7)
+
+st.caption("Note: 1 year = 52 weeks. The model converts weeks into years internally.")
 
 if st.button("Calculate Call Option Price"):
     model = Heston_Model(K, t, S0, r, v0, theta, kappa, sigma, rho)
